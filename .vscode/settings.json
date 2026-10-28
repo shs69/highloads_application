@@ -1,0 +1,16 @@
+{
+  "editor.inlineSuggest.experimental.suppressInlineSuggestions": "viknet.intelliboba",
+  "ruff.path": [
+    "${workspaceFolder}/.venv/bin/ruff",
+    "${workspaceFolder}/.venv/Scripts/ruff.exe"
+  ],
+  "ruff.configurationPreference": "filesystemFirst",
+  "[python]": {
+    "editor.defaultFormatter": "charliermarsh.ruff",
+    "editor.formatOnSave": true,
+    "editor.formatOnSaveMode": "file",
+    "editor.tabSize": 4,
+    "editor.insertSpaces": true,
+    "editor.rulers": [100]
+  }
+}

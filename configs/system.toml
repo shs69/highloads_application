@@ -1,0 +1,41 @@
+[balancer]
+host = "127.0.0.1"
+port = 8080
+algorithm = "least_time"
+alpha = 0.2
+request_timeout = 2.0
+health_interval = 1.0
+health_timeout = 0.3
+failure_threshold = 2
+recovery_threshold = 2
+exploration_interval = 10
+shutdown_timeout = 5.0
+
+[[backends]]
+id = "A"
+host = "127.0.0.1"
+port = 9001
+delay_ms = 50
+weight = 1
+
+[[backends]]
+id = "B"
+host = "127.0.0.1"
+port = 9002
+delay_ms = 100
+weight = 1
+
+[[backends]]
+id = "C"
+host = "127.0.0.1"
+port = 9003
+delay_ms = 150
+weight = 1
+
+[loadgen]
+url = "http://127.0.0.1:8080"
+requests = 600
+mode = "sequential"
+concurrency = 20
+timeout = 3.0
+output = "../results/load.json"
