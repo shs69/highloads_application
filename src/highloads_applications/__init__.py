@@ -1,1 +1,2 @@
-"""Учебная система асинхронной балансировки HTTP-запросов."""
+def main() -> None:
+    print("Hello from highloads-applications!")
