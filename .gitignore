@@ -8,3 +8,11 @@ wheels/
 
 # Virtual environments
 .venv
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+results/
+
+# IDE's settings
+.idea/
+.vscode/

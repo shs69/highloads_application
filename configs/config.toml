@@ -1,0 +1,21 @@
+[[backends]]
+id = "A"
+host = "127.0.0.1"
+port = 9001
+delay_ms = 1050
+weight = 1
+
+[[backends]]
+id = "B"
+host = "127.0.0.1"
+port = 9002
+delay_ms = 100
+weight = 1
+
+[[backends]]
+id = "C"
+host = "127.0.0.1"
+port = 9003
+delay_ms = 50
+weight = 1
+
