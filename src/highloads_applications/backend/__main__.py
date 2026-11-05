@@ -1,21 +1,32 @@
 import argparse
+import logging
 from pathlib import Path
 
 from aiohttp import web
 
-from highloads_applications.configuration import ConfigurationError, load_config
+from highloads_applications.configuration import (
+    DEFAULT_CONFIG,
+    ConfigurationError,
+    load_config,
+)
 
 from .server import create_server
 
 
 def main() -> None:
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s %(levelname)s %(message)s",
+    )
     parser = argparse.ArgumentParser(description="HTTP-сервер")
-    _ = parser.add_argument("--config", type=Path, help="Конфигурация для сервера")
+    _ = parser.add_argument(
+        "--config", type=Path, default=DEFAULT_CONFIG, help="Конфигурация для сервера"
+    )
     _ = parser.add_argument("--id", required=True, help="Идентификатор сервера")
     args = parser.parse_args()
 
     try:
-        config = load_config()
+        config = load_config(args.config)
         backend = None
 
         for back in config.backends:

@@ -1,10 +1,13 @@
 import asyncio
+import logging
 import uuid
 from typing import TypedDict
 
 from aiohttp import web
 
 from highloads_applications.configuration import BackendConfig
+
+logger = logging.getLogger(__name__)
 
 
 class BackendState(TypedDict):
@@ -21,6 +24,11 @@ def create_server(*, backend: BackendConfig) -> web.Application:
 
     @routes.get("/work")
     async def work(request: web.Request):
+        logger.info(
+            "Получен /work request_id=%s backend=%s",
+            request.query.get("request_id", "-"),
+            backend.id,
+        )
         if not state["available"]:
             raise web.HTTPServiceUnavailable()
 

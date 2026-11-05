@@ -14,6 +14,17 @@ dependencies = [
 [project.scripts]
 highloads-applications = "highloads_applications:main"
 backend = "highloads_applications.backend.__main__:main"
+balancer = "highloads_applications.balancer.__main__:main"
+generator = "highloads_applications.loadgen.__main__:main"
+
+[dependency-groups]
+dev = ["pytest>=8", "pytest-asyncio>=1"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+testpaths = ["tests"]
+filterwarnings = ["error"]
 
 [build-system]
 requires = ["uv_build>=0.13.3,<0.14.0"]
