@@ -29,6 +29,6 @@ weight = 1
 id = "C"
 host = "127.0.0.1"
 port = 9003
-delay_ms = 50
+delay_ms = 150
 weight = 1
 

@@ -12,6 +12,7 @@ wheels/
 .ruff_cache/
 .mypy_cache/
 results/
+reports/
 
 # IDE's settings
 .idea/

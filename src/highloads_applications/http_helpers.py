@@ -20,7 +20,7 @@ async def single_attempt(
         raise ClientConnectionError(str(error)) from error
 
 
-def request_id(request: web.Request) -> int:
+def request_id(request: web.Request, *, allow_probe: bool = False) -> int:
     values = request.query.getall("request_id", [])
 
     if len(values) != 1 or not values[0].isascii() or not values[0].isdecimal():
@@ -31,7 +31,7 @@ def request_id(request: web.Request) -> int:
     except ValueError as error:
         raise web.HTTPBadRequest(text="request_id is too large") from error
 
-    if value == 0:
+    if value == 0 and not allow_probe:
         raise web.HTTPBadRequest(text="request_id=0 is reserved for internal probes")
 
     return value

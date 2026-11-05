@@ -39,7 +39,12 @@ def main() -> None:
     except ConfigurationError as error:
         parser.error(str(error))
 
-    web.run_app(create_server(backend=backend), host=backend.host, port=backend.port)
+    web.run_app(
+        create_server(backend=backend),
+        host=backend.host,
+        port=backend.port,
+        handler_cancellation=True,
+    )
 
 
 if __name__ == "__main__":

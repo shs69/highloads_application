@@ -40,9 +40,6 @@ def integer(value: object, name: str, *, maximum: int | None = None) -> int:
 
 
 def check_host(value: str) -> None:
-    if not isinstance(value, str):
-        raise ConfigurationError("host: требуется IPv4 или IPv6 адрес")
-
     try:
         _ = ipaddress.ip_address(address=value)
     except ValueError as error:
@@ -58,7 +55,7 @@ class BackendConfig:
     weight: float
 
     def __post_init__(self) -> None:
-        if not isinstance(self.id, str) or not re.fullmatch(r"[A-Za-z0-9_-]+", self.id):
+        if not re.fullmatch(r"[A-Za-z0-9_-]+", self.id):
             raise ConfigurationError("backend.id: допустимы буквы ASCII, цифры, _ и -")
 
         check_host(self.host)

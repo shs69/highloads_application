@@ -7,10 +7,10 @@ from time import perf_counter
 from aiohttp import ClientError, ClientSession, ClientTimeout, TCPConnector, web
 
 from highloads_applications.configuration import SystemConfig
+from highloads_applications.http_helpers import request_id as parse_request_id
+from highloads_applications.http_helpers import single_attempt
 
 from .algorithms import BackendState, LeastTime
-from .http_helpers import request_id as parse_request_id
-from .http_helpers import single_attempt
 
 logger = logging.getLogger(__name__)
 
@@ -29,6 +29,7 @@ class Balancer:
         self.health_tasks: list[asyncio.Task[None]] = []
         self.work_tasks: set[asyncio.Task[web.StreamResponse]] = set()
         self.stopping = False
+        self.requests = 0
 
         self.work_timeout = ClientTimeout(
             total=config.balancer.request_timeout,
@@ -40,13 +41,37 @@ class Balancer:
         )
 
     async def handle_work(self, request_id: int) -> web.Response:
-        if self.stopping:
-            raise web.HTTPServiceUnavailable(text="Balancer shutting down")
+        started = perf_counter()
+        client_request_id = request_id
 
-        backend = self.algorithm.select_backend()
+        # Номер запроса не зависит от номера назначения: ответ 503 тоже его получает.
+        self.requests += 1
+        request_id = self.requests
+
+        headers = {
+            "X-Request-ID": str(request_id),
+            "X-Client-Request-ID": str(client_request_id),
+        }
+
+        backend = None if self.stopping else self.algorithm.select_backend()
 
         if backend is None:
-            raise web.HTTPServiceUnavailable(text="No healthy backends")
+            error = "Balancer shutting down" if self.stopping else "No healthy backends"
+
+            logger.info(
+                "Ответ request_id=%s client_request_id=%s backend=- "
+                "result=503 duration=%.6f reason=%s",
+                request_id,
+                client_request_id,
+                perf_counter() - started,
+                error,
+            )
+
+            return web.json_response(
+                {"error": error, "request_id": request_id},
+                status=503,
+                headers=headers,
+            )
 
         # Сохраняем данные назначения до await: другие запросы изменят общий счётчик.
         number = self.algorithm.assignments
@@ -61,13 +86,13 @@ class Balancer:
         assert task is not None
         self.work_tasks.add(task)
 
-        started = perf_counter()
         status = None
 
         logger.info(
-            "Назначение number=%s request_id=%s backend=%s mode=%s",
+            "Назначение number=%s request_id=%s client_request_id=%s backend=%s mode=%s",
             number,
             request_id,
+            client_request_id,
             backend.config.id,
             mode,
         )
@@ -103,6 +128,7 @@ class Balancer:
                 "X-Selection-Mode": mode,
                 "X-EWMA-Before": str(estimate_at_assignment),
                 "X-EWMA-After": str(backend.estimate),
+                **headers,
             }
         )
 
